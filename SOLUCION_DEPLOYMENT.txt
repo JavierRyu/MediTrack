@@ -1,0 +1,125 @@
+╔════════════════════════════════════════════════════════════════════╗
+║     🔧 SOLUCIÓN: Error "MediTrack-1.0-SNAPSHOT not found"         ║
+╚════════════════════════════════════════════════════════════════════╝
+
+❌ PROBLEMA DETECTADO:
+IntelliJ está buscando: target\MediTrack-1.0-SNAPSHOT
+Pero el directorio correcto es: target\MediTrack
+
+═══════════════════════════════════════════════════════════════════════
+🚀 SOLUCIÓN: Corregir la Configuración de Deployment
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: Abrir Configuraciones de Tomcat
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• En IntelliJ: Run → Edit Configurations...
+• Selecciona tu configuración: "Tomcat 9.0.111"
+
+
+PASO 2: Ir al Tab "Deployment"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Click en el tab "Deployment" (arriba)
+• Verás la lista de artifacts desplegados
+
+
+PASO 3: Eliminar el Artifact Actual
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Selecciona el artifact que dice "MediTrack:war exploded"
+• Click en el botón "-" (menos) para eliminarlo
+
+
+PASO 4: Agregar el Artifact Correcto
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Click en el botón "+" (más)
+• Selecciona "Artifact..."
+• En la lista deberías ver:
+  ✅ MediTrack:war exploded
+  ✅ MediTrack:war
+
+• Selecciona: "MediTrack:war exploded"
+• Click "OK"
+
+
+PASO 5: Verificar el Application Context
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• En la columna "Application context", verifica que diga: /MediTrack
+• Si dice otra cosa, cámbialo a: /MediTrack
+
+
+PASO 6: Aplicar y Ejecutar
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Click en "Apply"
+• Click en "OK"
+• Click en Run ▶️
+
+
+═══════════════════════════════════════════════════════════════════════
+🎯 ALTERNATIVA: Reconstruir el Artifact
+═══════════════════════════════════════════════════════════════════════
+
+Si el problema persiste, reconstruye el artifact:
+
+1. En IntelliJ: Build → Build Artifacts...
+2. Selecciona "MediTrack:war exploded"
+3. Click en "Rebuild"
+4. Espera a que termine
+5. Luego ejecuta Tomcat de nuevo
+
+
+═══════════════════════════════════════════════════════════════════════
+✅ DESPUÉS DE CORREGIR
+═══════════════════════════════════════════════════════════════════════
+
+Al ejecutar Tomcat, deberías ver:
+
+✅ "Artifact is being deployed, please wait..."
+✅ "Artifact is deployed successfully"
+✅ En la consola:
+   "Base de datos H2 inicializada correctamente"
+   "Usuario admin creado: admin@meditrack.com / admin123"
+✅ El navegador abre: http://localhost:8080/MediTrack/
+
+
+═══════════════════════════════════════════════════════════════════════
+📝 NOTA SOBRE JMX
+═══════════════════════════════════════════════════════════════════════
+
+Veo que agregaste -Dcom.sun.management.jmxremote=false pero también
+hay otras opciones de JMX que siguen activas:
+
+-Dcom.sun.management.jmxremote.port=1099
+
+Esto puede causar el conflicto del puerto 1099.
+
+RECOMENDACIÓN: En VM options, deja SOLO esto:
+-Dcom.sun.management.jmxremote=false
+
+Y ELIMINA todas las demás opciones de jmxremote.
+
+
+═══════════════════════════════════════════════════════════════════════
+🔍 VERIFICAR ESTRUCTURA DEL PROYECTO
+═══════════════════════════════════════════════════════════════════════
+
+Tu proyecto tiene esta estructura:
+target/
+  ├── MediTrack/                    ← war exploded (correcto)
+  └── MediTrack.war                 ← war comprimido
+
+IntelliJ debe apuntar a: target/MediTrack/
+
+NO a: target/MediTrack-1.0-SNAPSHOT/ (que no existe)
+
+
+═══════════════════════════════════════════════════════════════════════
+
+🎯 SIGUE LOS PASOS 1-6 Y LUEGO EJECUTA TOMCAT
+
+═══════════════════════════════════════════════════════════════════════
+

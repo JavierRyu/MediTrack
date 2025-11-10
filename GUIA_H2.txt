@@ -1,0 +1,252 @@
+╔════════════════════════════════════════════════════════════════════╗
+║              ✅ MEDITRACK AHORA USA H2 DATABASE                   ║
+╚════════════════════════════════════════════════════════════════════╝
+
+🎉 ¡MUCHO MÁS FÁCIL! NO NECESITAS INSTALAR NADA
+═══════════════════════════════════════════════════════════════════════
+
+✅ Base de datos H2 configurada (archivo local)
+✅ NO necesitas instalar MySQL
+✅ NO necesitas XAMPP
+✅ NO necesitas configurar contraseñas
+✅ La base de datos se crea automáticamente
+✅ Usuario admin ya creado al iniciar
+✅ TODO funciona out-of-the-box
+
+
+🚀 INSTRUCCIONES SIMPLIFICADAS
+═══════════════════════════════════════════════════════════════════════
+
+PASO 1: CONFIGURAR TOMCAT EN INTELLIJ (2 minutos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Click en: Run → Edit Configurations
+
+2. Click en el "+" → Tomcat Server → Local
+
+3. En "Server" tab:
+   - Name: Tomcat - MediTrack
+   - Application Server: Click "Configure..." y selecciona tu Tomcat
+   - HTTP port: 8080
+
+4. En "Deployment" tab:
+   - Click en "+" → Artifact
+   - Selecciona: MediTrack:war exploded
+   - Application context: /MediTrack
+
+5. Click en "OK"
+
+
+PASO 2: EJECUTAR LA APLICACIÓN (1 minuto)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Click en el botón RUN (play verde) ▶️
+
+2. Espera a que Tomcat inicie
+
+3. En la consola verás:
+   ✅ Base de datos H2 inicializada correctamente
+   ✅ Usuario admin creado: admin@meditrack.com / admin123
+
+4. Se abrirá automáticamente: http://localhost:8080/MediTrack/
+
+
+PASO 3: PROBAR LA APLICACIÓN (2 minutos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. PROBAR LOGIN:
+   Email:    admin@meditrack.com
+   Password: admin123
+
+   ✅ Deberías entrar al dashboard
+
+2. PROBAR REGISTRO:
+   - Click en "Regístrate aquí"
+   - Llena el formulario con tus datos
+   - Crea tu cuenta
+   - Inicia sesión con tu nuevo usuario
+
+3. PROBAR LOGOUT:
+   - Click en "Cerrar Sesión"
+   - Vuelve al login
+
+
+═══════════════════════════════════════════════════════════════════════
+📊 ¿QUÉ CAMBIÓ CON H2?
+═══════════════════════════════════════════════════════════════════════
+
+ANTES (MySQL):
+❌ Instalar MySQL o XAMPP
+❌ Configurar contraseñas
+❌ Iniciar servicios manualmente
+❌ Ejecutar scripts SQL
+❌ Configurar conexiones
+❌ Verificar que esté corriendo
+
+AHORA (H2):
+✅ NO instalar nada extra
+✅ NO configurar contraseñas
+✅ NO iniciar servicios
+✅ NO ejecutar scripts
+✅ Base de datos automática
+✅ Solo ejecutar en Tomcat
+
+
+═══════════════════════════════════════════════════════════════════════
+🗄️ INFORMACIÓN DE LA BASE DE DATOS H2
+═══════════════════════════════════════════════════════════════════════
+
+Tipo:           H2 Database (Embedded)
+Ubicación:      ~/meditrack.mv.db (en tu carpeta de usuario)
+Usuario:        sa
+Contraseña:     (vacía)
+URL:            jdbc:h2:~/meditrack;AUTO_SERVER=TRUE
+Driver:         org.h2.Driver
+
+Características:
+✅ Base de datos en archivo local
+✅ Se crea automáticamente al iniciar la app
+✅ Persistencia de datos entre ejecuciones
+✅ Modo AUTO_SERVER (permite múltiples conexiones)
+✅ Compatible con SQL estándar
+
+
+═══════════════════════════════════════════════════════════════════════
+🔍 VER LOS DATOS DE LA BASE DE DATOS (OPCIONAL)
+═══════════════════════════════════════════════════════════════════════
+
+H2 incluye una consola web para ver los datos:
+
+OPCIÓN 1: Consola H2 Web (más fácil)
+
+1. Agrega esta línea temporal a tu código de inicialización:
+   org.h2.tools.Server.createWebServer("-web").start();
+
+2. Accede a: http://localhost:8082
+
+3. Configuración:
+   Driver Class: org.h2.Driver
+   JDBC URL: jdbc:h2:~/meditrack
+   User Name: sa
+   Password: (vacío)
+
+OPCIÓN 2: DataSource en IntelliJ
+
+1. View → Tool Windows → Database
+
+2. Click en "+" → Data Source → H2
+
+3. Configuración:
+   Host: localhost
+   Database: ~/meditrack
+   User: sa
+   Password: (vacío)
+   URL: jdbc:h2:~/meditrack
+
+4. Test Connection → OK
+
+5. Ahora puedes ver las tablas y datos en IntelliJ
+
+
+═══════════════════════════════════════════════════════════════════════
+📝 DATOS CREADOS AUTOMÁTICAMENTE
+═══════════════════════════════════════════════════════════════════════
+
+TABLA: usuarios
+  ├─ id: BIGINT (auto increment)
+  ├─ nombre: VARCHAR(100)
+  ├─ apellido: VARCHAR(100)
+  ├─ email: VARCHAR(150) [UNIQUE]
+  ├─ password: VARCHAR(255)
+  ├─ rol: VARCHAR(50) [DEFAULT: 'USUARIO']
+  ├─ fecha_registro: TIMESTAMP [DEFAULT: CURRENT_TIMESTAMP]
+  └─ activo: BOOLEAN [DEFAULT: TRUE]
+
+USUARIO ADMIN (ya creado):
+  email: admin@meditrack.com
+  password: admin123 (hasheada con BCrypt)
+  rol: ADMIN
+
+
+═══════════════════════════════════════════════════════════════════════
+🎯 VENTAJAS DE H2 PARA DESARROLLO
+═══════════════════════════════════════════════════════════════════════
+
+✅ Configuración cero
+✅ No requiere instalación externa
+✅ Rápido y ligero
+✅ Perfecto para desarrollo y pruebas
+✅ Fácil de compartir (solo el archivo .mv.db)
+✅ Compatible con SQL estándar
+✅ Se puede migrar fácilmente a MySQL/PostgreSQL después
+
+
+═══════════════════════════════════════════════════════════════════════
+🔄 ¿QUIERES VOLVER A MYSQL DESPUÉS?
+═══════════════════════════════════════════════════════════════════════
+
+Si más adelante quieres usar MySQL (para producción):
+
+1. En pom.xml:
+   - Cambia h2 por mysql-connector-java
+
+2. En DatabaseConnection.java:
+   - Cambia la URL a MySQL
+   - Actualiza usuario y contraseña
+
+3. Ejecuta database.sql en MySQL
+
+El resto del código NO necesita cambios (ya está preparado)
+
+
+═══════════════════════════════════════════════════════════════════════
+📌 RESUMEN ULTRA RÁPIDO
+═══════════════════════════════════════════════════════════════════════
+
+1. ✅ H2 ya está configurado y compilado
+2. ✅ Configura Tomcat en IntelliJ (Run → Edit Configurations)
+3. ✅ Click en RUN ▶️
+4. ✅ Abre: http://localhost:8080/MediTrack/
+5. ✅ Login: admin@meditrack.com / admin123
+6. 🎉 ¡FUNCIONA!
+
+
+═══════════════════════════════════════════════════════════════════════
+✨ ARCHIVOS ACTUALIZADOS
+═══════════════════════════════════════════════════════════════════════
+
+✅ pom.xml → Dependencia H2 agregada
+✅ DatabaseConnection.java → Configurado para H2
+✅ Java 11 → Java 17 (para text blocks)
+✅ Compilación exitosa: BUILD SUCCESS
+✅ WAR generado: target/MediTrack.war
+
+
+═══════════════════════════════════════════════════════════════════════
+🎓 LO QUE YA NO NECESITAS
+═══════════════════════════════════════════════════════════════════════
+
+❌ database.sql (ya no es necesario ejecutarlo)
+❌ MySQL Workbench
+❌ XAMPP
+❌ Configurar contraseñas
+❌ Servicios de MySQL
+❌ SOLUCION_MYSQL.txt (ya no aplica)
+
+
+═══════════════════════════════════════════════════════════════════════
+🚀 SIGUIENTE PASO: ¡EJECUTA LA APLICACIÓN!
+═══════════════════════════════════════════════════════════════════════
+
+Solo necesitas:
+1. Configurar Tomcat (2 minutos)
+2. Click en RUN
+3. ¡Listo! Todo funciona automáticamente
+
+
+═══════════════════════════════════════════════════════════════════════
+
+🎉 AHORA ES 100 VECES MÁS FÁCIL - SOLO EJECUTA Y FUNCIONA
+
+═══════════════════════════════════════════════════════════════════════
+
