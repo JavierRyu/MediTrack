@@ -11,7 +11,14 @@ public class UserDAO {
 
     // Crear un nuevo usuario
     public boolean createUser(Usuario usuario) {
-        String sql = "INSERT INTO usuarios (nombre, apellido, email, password, rol, fecha_registro, activo) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO usuarios (nombre, apellido, email, password, rol, tipo_usuario, fecha_registro, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        System.out.println("=== UserDAO.createUser ===");
+        System.out.println("Nombre: " + usuario.getNombre());
+        System.out.println("Apellido: " + usuario.getApellido());
+        System.out.println("Email: " + usuario.getEmail());
+        System.out.println("Tipo Usuario: " + usuario.getTipoUsuario());
+        System.out.println("Rol: " + usuario.getRol());
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -21,22 +28,28 @@ public class UserDAO {
             stmt.setString(3, usuario.getEmail());
             stmt.setString(4, usuario.getPassword());
             stmt.setString(5, usuario.getRol());
-            stmt.setTimestamp(6, Timestamp.valueOf(usuario.getFechaRegistro()));
-            stmt.setBoolean(7, usuario.isActivo());
+            stmt.setString(6, usuario.getTipoUsuario());
+            stmt.setTimestamp(7, Timestamp.valueOf(usuario.getFechaRegistro()));
+            stmt.setBoolean(8, usuario.isActivo());
 
+            System.out.println("Ejecutando INSERT...");
             int rowsAffected = stmt.executeUpdate();
+            System.out.println("Filas afectadas: " + rowsAffected);
 
             if (rowsAffected > 0) {
                 ResultSet rs = stmt.getGeneratedKeys();
                 if (rs.next()) {
                     usuario.setId(rs.getLong(1));
+                    System.out.println("✅ Usuario creado con ID: " + usuario.getId());
                 }
                 return true;
             }
 
         } catch (SQLException e) {
+            System.err.println("❌ Error SQL en createUser: " + e.getMessage());
             e.printStackTrace();
         }
+        System.out.println("========================");
         return false;
     }
 
@@ -151,6 +164,16 @@ public class UserDAO {
         usuario.setEmail(rs.getString("email"));
         usuario.setPassword(rs.getString("password"));
         usuario.setRol(rs.getString("rol"));
+
+        // Manejar tipo_usuario con valor por defecto si es NULL o no existe
+        try {
+            String tipoUsuario = rs.getString("tipo_usuario");
+            usuario.setTipoUsuario(tipoUsuario != null ? tipoUsuario : "PACIENTE");
+        } catch (SQLException e) {
+            // Si la columna no existe, usar valor por defecto
+            System.out.println("⚠️ Columna tipo_usuario no encontrada, usando PACIENTE por defecto");
+            usuario.setTipoUsuario("PACIENTE");
+        }
 
         Timestamp timestamp = rs.getTimestamp("fecha_registro");
         if (timestamp != null) {

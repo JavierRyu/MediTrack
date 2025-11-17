@@ -27,10 +27,22 @@
         .register-container {
             background: white;
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .register-header {
@@ -40,13 +52,14 @@
 
         .register-header h1 {
             color: #333;
-            font-size: 28px;
+            font-size: 32px;
             margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .register-header p {
             color: #666;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .form-group {
@@ -55,23 +68,26 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            font-weight: 600;
             font-size: 14px;
-            transition: border-color 0.3s;
         }
 
-        .form-group input:focus {
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-row {
@@ -80,11 +96,68 @@
             gap: 15px;
         }
 
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .user-type-option {
+            position: relative;
+        }
+
+        .user-type-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .user-type-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            text-align: center;
+        }
+
+        .user-type-label:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .user-type-option input[type="radio"]:checked + .user-type-label {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-type-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .user-type-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
         .alert {
-            padding: 12px;
-            border-radius: 5px;
+            padding: 14px;
+            border-radius: 8px;
             margin-bottom: 20px;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .alert-error {
@@ -95,24 +168,30 @@
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            margin-top: 10px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
 
         .login-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 25px;
             color: #666;
             font-size: 14px;
         }
@@ -148,6 +227,36 @@
         </c:if>
 
         <form action="${pageContext.request.contextPath}/register" method="post">
+            <div class="form-group">
+                <label>Tipo de Usuario</label>
+                <div class="user-type-selector">
+                    <div class="user-type-option">
+                        <input type="radio" id="paciente" name="tipoUsuario" value="PACIENTE"
+                               ${empty tipoUsuario || tipoUsuario == 'PACIENTE' ? 'checked' : ''} required>
+                        <label for="paciente" class="user-type-label">
+                            <div class="user-type-icon">🤒</div>
+                            <div class="user-type-text">Paciente</div>
+                        </label>
+                    </div>
+                    <div class="user-type-option">
+                        <input type="radio" id="medico" name="tipoUsuario" value="MEDICO"
+                               ${tipoUsuario == 'MEDICO' ? 'checked' : ''} required>
+                        <label for="medico" class="user-type-label">
+                            <div class="user-type-icon">👨‍⚕️</div>
+                            <div class="user-type-text">Médico</div>
+                        </label>
+                    </div>
+                    <div class="user-type-option">
+                        <input type="radio" id="asistente" name="tipoUsuario" value="ASISTENTE"
+                               ${tipoUsuario == 'ASISTENTE' ? 'checked' : ''} required>
+                        <label for="asistente" class="user-type-label">
+                            <div class="user-type-icon">👩‍💼</div>
+                            <div class="user-type-text">Asistente</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="nombre">Nombre</label>

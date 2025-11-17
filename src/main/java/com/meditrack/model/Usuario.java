@@ -12,6 +12,7 @@ public class Usuario implements Serializable {
     private String email;
     private String password;
     private String rol;
+    private String tipoUsuario; // PACIENTE, MEDICO, ASISTENTE
     private LocalDateTime fechaRegistro;
     private boolean activo;
 
@@ -19,6 +20,7 @@ public class Usuario implements Serializable {
     public Usuario() {
         this.activo = true;
         this.rol = "USUARIO";
+        this.tipoUsuario = "PACIENTE"; // Por defecto
         this.fechaRegistro = LocalDateTime.now();
     }
 
@@ -78,6 +80,14 @@ public class Usuario implements Serializable {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+
+    public String getTipoUsuario() {
+        return tipoUsuario;
+    }
+
+    public void setTipoUsuario(String tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
     }
 
     public LocalDateTime getFechaRegistro() {

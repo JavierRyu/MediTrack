@@ -60,9 +60,17 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("usuarioNombre", usuario.getNombreCompleto());
             session.setAttribute("usuarioEmail", usuario.getEmail());
             session.setAttribute("usuarioRol", usuario.getRol());
+            session.setAttribute("tipoUsuario", usuario.getTipoUsuario());
 
-            // Redirigir al dashboard
-            response.sendRedirect(request.getContextPath() + "/views/dashboard.jsp");
+            // Redirigir al dashboard correspondiente según el tipo de usuario
+            String tipoUsuario = usuario.getTipoUsuario();
+            if ("MEDICO".equals(tipoUsuario)) {
+                response.sendRedirect(request.getContextPath() + "/views/dashboard-medico.jsp");
+            } else if ("ASISTENTE".equals(tipoUsuario)) {
+                response.sendRedirect(request.getContextPath() + "/views/dashboard-asistente.jsp");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/views/dashboard-paciente.jsp");
+            }
         } else {
             // Login fallido
             request.setAttribute("error", "Email o contraseña incorrectos");
