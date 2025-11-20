@@ -238,7 +238,7 @@
             display: inline-block;
         }
 
-        .badge-activa {
+        .badge-emitida {
             background: #d4edda;
             color: #155724;
         }
@@ -246,6 +246,16 @@
         .badge-utilizada {
             background: #d1ecf1;
             color: #0c5460;
+        }
+
+        .badge-vencida {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-activa {
+            background: #d4edda;
+            color: #155724;
         }
 
         .badge-cancelada {
@@ -532,6 +542,13 @@
                                     <div class="receta-value"><%= receta.getIndicaciones() %></div>
                                 </div>
                                 <% } %>
+                            </div>
+                            <div class="receta-actions">
+                                <a href="<%= request.getContextPath() %>/recetas/descargar-pdf?id=<%= receta.getId() %>"
+                                   class="btn-download-pdf"
+                                   title="Descargar receta en PDF">
+                                    📄 Descargar PDF
+                                </a>
                             </div>
                         </div>
                     <% }

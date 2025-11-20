@@ -16,11 +16,11 @@ public class Receta implements Serializable {
     private String dosis;
     private String indicaciones;
     private LocalDateTime fechaEmision;
-    private String estado; // ACTIVA, UTILIZADA, CANCELADA
+    private String estado; // EMITIDA, UTILIZADA, VENCIDA
 
     public Receta() {
         this.fechaEmision = LocalDateTime.now();
-        this.estado = "ACTIVA";
+        this.estado = "EMITIDA";
     }
 
     // Getters y Setters

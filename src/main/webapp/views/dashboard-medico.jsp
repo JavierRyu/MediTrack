@@ -335,9 +335,29 @@
             font-weight: 600;
         }
 
+        .badge-emitida {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-utilizada {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-vencida {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         .badge-activa {
             background: #d4edda;
             color: #155724;
+        }
+
+        .badge-cancelada {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .badge-programada {
@@ -568,12 +588,17 @@
                                         <td><%= receta.getDiagnostico() != null ? receta.getDiagnostico() : "-" %></td>
                                         <td><%= receta.getMedicamento() %></td>
                                         <td><%= receta.getDosis() != null ? receta.getDosis() : "-" %></td>
-                                        <td><span class="badge badge-activa"><%= receta.getEstado() %></span></td>
+                                        <td><span class="badge badge-<%= receta.getEstado().toLowerCase() %>"><%= receta.getEstado() %></span></td>
                                         <td>
                                             <button class="btn btn-edit" style="padding: 6px 12px; font-size: 12px;"
                                                     onclick="editarReceta(<%= receta.getId() %>, '<%= receta.getDiagnostico() != null ? receta.getDiagnostico().replace("'", "\\'") : "" %>', '<%= receta.getMedicamento().replace("'", "\\'") %>', '<%= receta.getDosis() != null ? receta.getDosis().replace("'", "\\'") : "" %>', '<%= receta.getIndicaciones() != null ? receta.getIndicaciones().replace("'", "\\'").replace("\n", "\\n") : "" %>', '<%= receta.getEstado() %>')">
                                                 ✏️ Editar
                                             </button>
+                                            <a href="<%= request.getContextPath() %>/recetas/descargar-pdf?id=<%= receta.getId() %>"
+                                               class="btn" style="padding: 6px 12px; font-size: 12px; background: #28a745; color: white; text-decoration: none; display: inline-block; margin-left: 5px;"
+                                               title="Descargar PDF">
+                                                📄 PDF
+                                            </a>
                                         </td>
                                     </tr>
                                 <% } %>
@@ -693,9 +718,9 @@
                 <div class="form-group">
                     <label>Estado:</label>
                     <select name="estado" id="editEstado">
-                        <option value="ACTIVA">ACTIVA</option>
+                        <option value="EMITIDA">EMITIDA</option>
                         <option value="UTILIZADA">UTILIZADA</option>
-                        <option value="CANCELADA">CANCELADA</option>
+                        <option value="VENCIDA">VENCIDA</option>
                     </select>
                 </div>
 
