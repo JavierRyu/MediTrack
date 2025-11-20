@@ -1,5 +1,13 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="com.meditrack.dao.UserDAO" %>
+<%@ page import="com.meditrack.dao.CitaDAO" %>
+<%@ page import="com.meditrack.dao.RecetaDAO" %>
+<%@ page import="com.meditrack.model.Usuario" %>
+<%@ page import="com.meditrack.model.Cita" %>
+<%@ page import="com.meditrack.model.Receta" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <%
     if (session.getAttribute("usuario") == null) {
         response.sendRedirect(request.getContextPath() + "/login");
@@ -10,6 +18,32 @@
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
+
+    Usuario medico = (Usuario) session.getAttribute("usuario");
+    UserDAO userDAO = new UserDAO();
+    CitaDAO citaDAO = new CitaDAO();
+    RecetaDAO recetaDAO = new RecetaDAO();
+
+    List<Usuario> pacientes = userDAO.findByTipoUsuario("PACIENTE");
+    List<Cita> citas = citaDAO.findByMedicoId(medico.getId());
+
+    String pacienteIdParam = request.getParameter("pacienteId");
+    Usuario pacienteSeleccionado = null;
+    List<Receta> recetasPaciente = null;
+    List<Cita> citasPaciente = null;
+
+    if (pacienteIdParam != null && !pacienteIdParam.isEmpty()) {
+        try {
+            Long pacienteId = Long.parseLong(pacienteIdParam);
+            pacienteSeleccionado = userDAO.findById(pacienteId);
+            recetasPaciente = recetaDAO.findByPacienteIdAndMedicoId(pacienteId, medico.getId());
+            citasPaciente = citaDAO.findByPacienteId(pacienteId);
+        } catch (NumberFormatException e) {
+            // Ignorar
+        }
+    }
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -42,9 +76,6 @@
         .navbar-brand {
             font-size: 26px;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .navbar-user {
@@ -72,10 +103,6 @@
             color: #667eea;
         }
 
-        .user-details {
-            text-align: right;
-        }
-
         .user-name {
             font-weight: 600;
             font-size: 15px;
@@ -94,7 +121,6 @@
             border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
-            display: inline-block;
             transition: all 0.3s;
             font-weight: 600;
             font-size: 14px;
@@ -102,18 +128,48 @@
 
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 40px auto;
             padding: 0 20px;
         }
 
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            animation: slideIn 0.3s;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .welcome-card {
             background: white;
-            padding: 35px;
+            padding: 30px;
             border-radius: 15px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.08);
             margin-bottom: 30px;
@@ -128,54 +184,85 @@
 
         .welcome-card p {
             color: #666;
-            font-size: 15px;
         }
 
-        .cards-grid {
+        .main-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 350px 1fr;
             gap: 25px;
-            margin-bottom: 30px;
         }
 
-        .feature-card {
+        .sidebar {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .paciente-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .paciente-item {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .paciente-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .paciente-item.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .paciente-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .paciente-email {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .content-area {
             background: white;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 2px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s;
-            border-top: 4px solid #667eea;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
         }
 
-        .feature-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .feature-card h3 {
-            color: #333;
-            margin-bottom: 12px;
-            font-size: 20px;
-        }
-
-        .feature-card p {
-            color: #666;
+        .empty-state-icon {
+            font-size: 64px;
             margin-bottom: 20px;
-            font-size: 14px;
-            line-height: 1.6;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
+        .btn {
             padding: 12px 24px;
             border-radius: 8px;
+            border: none;
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
@@ -184,9 +271,83 @@
             display: inline-block;
         }
 
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 22px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-activa {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-programada {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .badge-completada {
+            background: #d1ecf1;
+            color: #0c5460;
         }
 
         .modal {
@@ -201,20 +362,20 @@
             animation: fadeIn 0.3s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 3% auto;
             padding: 35px;
             border-radius: 15px;
             width: 90%;
             max-width: 600px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             animation: slideDown 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes slideDown {
@@ -268,7 +429,8 @@
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -279,7 +441,8 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -290,156 +453,266 @@
             min-height: 100px;
         }
 
-        .alert {
-            padding: 14px 18px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+        .form-actions {
             display: flex;
-            align-items: center;
             gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
         }
 
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="navbar-brand">
-            <span>👨‍⚕️</span>
-            <span>MediTrack - Panel Médico</span>
-        </div>
+        <div class="navbar-brand">🏥 MediTrack</div>
         <div class="navbar-user">
             <div class="user-info">
                 <div class="user-avatar">
-                    ${sessionScope.usuarioNombre.substring(0,1).toUpperCase()}
+                    <%= medico.getNombre().substring(0,1).toUpperCase() %>
                 </div>
-                <div class="user-details">
-                    <div class="user-name">${sessionScope.usuarioNombre}</div>
+                <div>
+                    <div class="user-name"><%= medico.getNombre() + " " + medico.getApellido() %></div>
                     <div class="user-role">Médico</div>
                 </div>
             </div>
-            <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Cerrar Sesión</a>
+            <a href="<%= request.getContextPath() %>/logout" class="logout-btn">Cerrar Sesión</a>
         </div>
     </nav>
 
     <div class="container">
+        <%
+            String success = request.getParameter("success");
+            String error = request.getParameter("error");
+            if (success != null) {
+        %>
+            <div class="alert alert-success">
+                <% if ("receta_creada".equals(success)) { %>
+                    ✅ ¡Receta creada correctamente!
+                <% } else if ("receta_actualizada".equals(success)) { %>
+                    ✅ ¡Receta actualizada correctamente!
+                <% } %>
+            </div>
+        <% } %>
+
+        <% if (error != null) { %>
+            <div class="alert alert-error">
+                <% if ("datos_faltantes".equals(error)) { %>
+                    ❌ Error: Faltan datos obligatorios
+                <% } else if ("error_crear".equals(error)) { %>
+                    ❌ Error al crear la receta
+                <% } else { %>
+                    ❌ Ha ocurrido un error
+                <% } %>
+            </div>
+        <% } %>
+
         <div class="welcome-card">
-            <h1>¡Bienvenido, Dr. ${sessionScope.usuarioNombre}!</h1>
-            <p>Gestiona tus pacientes y emite recetas médicas de forma rápida y segura.</p>
+            <h1>¡Bienvenido, Dr. <%= medico.getNombre() %>!</h1>
+            <p>Gestiona tus pacientes y sus recetas médicas desde aquí</p>
         </div>
 
-        <c:if test="${not empty success}">
-            <div class="alert alert-success">
-                ✓ ${success}
-                <c:if test="${not empty recetaId}">
-                    <button onclick="descargarReceta(${recetaId})" class="btn-primary" style="margin-left: auto;">
-                        Descargar Receta
-                    </button>
-                </c:if>
-            </div>
-        </c:if>
-
-        <c:if test="${not empty error}">
-            <div class="alert alert-error">
-                ✗ ${error}
-            </div>
-        </c:if>
-
-        <div class="cards-grid">
-            <div class="feature-card">
-                <div class="feature-icon">📋</div>
-                <h3>Emitir Receta</h3>
-                <p>Crea recetas médicas digitales para tus pacientes con todos los detalles necesarios.</p>
-                <button onclick="abrirModalReceta()" class="btn-primary">Nueva Receta</button>
+        <div class="main-grid">
+            <div class="sidebar">
+                <h2>📋 Mis Pacientes</h2>
+                <div class="paciente-list">
+                    <% if (pacientes != null && !pacientes.isEmpty()) {
+                        for (Usuario paciente : pacientes) {
+                            boolean isActive = pacienteSeleccionado != null &&
+                                             paciente.getId().equals(pacienteSeleccionado.getId());
+                    %>
+                        <div class="paciente-item <%= isActive ? "active" : "" %>"
+                             onclick="window.location.href='?pacienteId=<%= paciente.getId() %>'">
+                            <div class="paciente-name">
+                                <%= paciente.getNombre() + " " + paciente.getApellido() %>
+                            </div>
+                            <div class="paciente-email"><%= paciente.getEmail() %></div>
+                        </div>
+                    <% }
+                    } else { %>
+                        <div class="no-data">No hay pacientes registrados</div>
+                    <% } %>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Mis Recetas</h3>
-                <p>Consulta el historial de todas las recetas que has emitido.</p>
-                <button onclick="alert('Funcionalidad en desarrollo')" class="btn-primary">Ver Historial</button>
-            </div>
+            <div class="content-area">
+                <% if (pacienteSeleccionado != null) { %>
+                    <div class="section-header">
+                        <h2>👤 <%= pacienteSeleccionado.getNombre() + " " + pacienteSeleccionado.getApellido() %></h2>
+                        <button class="btn btn-primary" onclick="abrirModalReceta()">
+                            ➕ Nueva Receta
+                        </button>
+                    </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">👥</div>
-                <h3>Mis Pacientes</h3>
-                <p>Gestiona la información y el historial de tus pacientes.</p>
-                <button onclick="alert('Funcionalidad en desarrollo')" class="btn-primary">Ver Pacientes</button>
+                    <h3 style="margin: 30px 0 15px 0; color: #333;">📝 Recetas Médicas</h3>
+                    <% if (recetasPaciente != null && !recetasPaciente.isEmpty()) { %>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Diagnóstico</th>
+                                    <th>Medicamento</th>
+                                    <th>Dosis</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (Receta receta : recetasPaciente) { %>
+                                    <tr>
+                                        <td><%= receta.getFechaEmision().format(formatter) %></td>
+                                        <td><%= receta.getDiagnostico() != null ? receta.getDiagnostico() : "-" %></td>
+                                        <td><%= receta.getMedicamento() %></td>
+                                        <td><%= receta.getDosis() != null ? receta.getDosis() : "-" %></td>
+                                        <td><span class="badge badge-activa"><%= receta.getEstado() %></span></td>
+                                        <td>
+                                            <button class="btn btn-edit" style="padding: 6px 12px; font-size: 12px;"
+                                                    onclick="editarReceta(<%= receta.getId() %>, '<%= receta.getDiagnostico() != null ? receta.getDiagnostico().replace("'", "\\'") : "" %>', '<%= receta.getMedicamento().replace("'", "\\'") %>', '<%= receta.getDosis() != null ? receta.getDosis().replace("'", "\\'") : "" %>', '<%= receta.getIndicaciones() != null ? receta.getIndicaciones().replace("'", "\\'").replace("\n", "\\n") : "" %>', '<%= receta.getEstado() %>')">
+                                                ✏️ Editar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <div class="no-data">No hay recetas para este paciente</div>
+                    <% } %>
+
+                    <h3 style="margin: 30px 0 15px 0; color: #333;">📅 Citas Médicas</h3>
+                    <% if (citasPaciente != null && !citasPaciente.isEmpty()) { %>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Motivo</th>
+                                    <th>Estado</th>
+                                    <th>Notas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (Cita cita : citasPaciente) { %>
+                                    <tr>
+                                        <td><%= cita.getFechaCita().format(formatter) %></td>
+                                        <td><%= cita.getMotivo() %></td>
+                                        <td><span class="badge badge-<%= cita.getEstado().toLowerCase() %>"><%= cita.getEstado() %></span></td>
+                                        <td><%= cita.getNotas() != null ? cita.getNotas() : "-" %></td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <div class="no-data">No hay citas para este paciente</div>
+                    <% } %>
+
+                <% } else { %>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👈</div>
+                        <h3>Selecciona un paciente</h3>
+                        <p>Selecciona un paciente de la lista para ver sus recetas y citas médicas</p>
+                    </div>
+                <% } %>
             </div>
         </div>
     </div>
 
-    <!-- Modal para crear receta -->
+    <!-- Modal Nueva Receta -->
     <div id="modalReceta" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📋 Emitir Nueva Receta</h2>
+                <h2>📝 Nueva Receta Médica</h2>
                 <span class="close" onclick="cerrarModalReceta()">&times;</span>
             </div>
-            <form action="${pageContext.request.contextPath}/recetas" method="post">
+            <form action="<%= request.getContextPath() %>/recetas" method="post">
                 <input type="hidden" name="action" value="crear">
+                <input type="hidden" name="pacienteId" value="<%= pacienteSeleccionado != null ? pacienteSeleccionado.getId() : "" %>">
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="pacienteId">ID del Paciente *</label>
-                        <input type="number" id="pacienteId" name="pacienteId" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pacienteNombre">Nombre del Paciente *</label>
-                        <input type="text" id="pacienteNombre" name="pacienteNombre" required>
-                    </div>
+                <div class="form-group">
+                    <label>Diagnóstico:</label>
+                    <textarea name="diagnostico" rows="3" placeholder="Ingrese el diagnóstico"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="diagnostico">Diagnóstico</label>
-                    <input type="text" id="diagnostico" name="diagnostico"
-                           placeholder="Ej: Gripe común, Hipertensión...">
+                    <label>Medicamento: *</label>
+                    <input type="text" name="medicamento" required placeholder="Nombre del medicamento">
                 </div>
 
                 <div class="form-group">
-                    <label for="medicamento">Medicamento *</label>
-                    <input type="text" id="medicamento" name="medicamento"
-                           placeholder="Ej: Paracetamol 500mg" required>
+                    <label>Dosis:</label>
+                    <input type="text" name="dosis" placeholder="Ej: 500mg cada 8 horas">
                 </div>
 
                 <div class="form-group">
-                    <label for="dosis">Dosis</label>
-                    <input type="text" id="dosis" name="dosis"
-                           placeholder="Ej: 1 tableta cada 8 horas">
+                    <label>Indicaciones:</label>
+                    <textarea name="indicaciones" rows="4" placeholder="Indicaciones adicionales"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalReceta()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Receta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Receta -->
+    <div id="modalEditarReceta" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Receta Médica</h2>
+                <span class="close" onclick="cerrarModalEditarReceta()">&times;</span>
+            </div>
+            <form action="<%= request.getContextPath() %>/recetas" method="post">
+                <input type="hidden" name="action" value="editar">
+                <input type="hidden" name="recetaId" id="editRecetaId">
+
+                <div class="form-group">
+                    <label>Diagnóstico:</label>
+                    <textarea name="diagnostico" id="editDiagnostico" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="indicaciones">Indicaciones</label>
-                    <textarea id="indicaciones" name="indicaciones"
-                              placeholder="Indicaciones adicionales para el paciente..."></textarea>
+                    <label>Medicamento: *</label>
+                    <input type="text" name="medicamento" id="editMedicamento" required>
                 </div>
 
-                <button type="submit" class="btn-primary" style="width: 100%; padding: 14px;">
-                    Emitir Receta
-                </button>
+                <div class="form-group">
+                    <label>Dosis:</label>
+                    <input type="text" name="dosis" id="editDosis">
+                </div>
+
+                <div class="form-group">
+                    <label>Indicaciones:</label>
+                    <textarea name="indicaciones" id="editIndicaciones" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Estado:</label>
+                    <select name="estado" id="editEstado">
+                        <option value="ACTIVA">ACTIVA</option>
+                        <option value="UTILIZADA">UTILIZADA</option>
+                        <option value="CANCELADA">CANCELADA</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalEditarReceta()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Receta</button>
+                </div>
             </form>
         </div>
     </div>
 
     <script>
         function abrirModalReceta() {
+            <% if (pacienteSeleccionado == null) { %>
+                alert('Por favor selecciona un paciente primero');
+                return;
+            <% } %>
             document.getElementById('modalReceta').style.display = 'block';
         }
 
@@ -447,14 +720,28 @@
             document.getElementById('modalReceta').style.display = 'none';
         }
 
-        function descargarReceta(recetaId) {
-            alert('Descargando receta #' + recetaId + '...\n\nEsta funcionalidad generará un PDF de la receta.');
+        function editarReceta(id, diagnostico, medicamento, dosis, indicaciones, estado) {
+            document.getElementById('editRecetaId').value = id;
+            document.getElementById('editDiagnostico').value = diagnostico;
+            document.getElementById('editMedicamento').value = medicamento;
+            document.getElementById('editDosis').value = dosis;
+            document.getElementById('editIndicaciones').value = indicaciones;
+            document.getElementById('editEstado').value = estado;
+            document.getElementById('modalEditarReceta').style.display = 'block';
+        }
+
+        function cerrarModalEditarReceta() {
+            document.getElementById('modalEditarReceta').style.display = 'none';
         }
 
         window.onclick = function(event) {
-            const modal = document.getElementById('modalReceta');
-            if (event.target == modal) {
+            let modalReceta = document.getElementById('modalReceta');
+            let modalEditar = document.getElementById('modalEditarReceta');
+            if (event.target == modalReceta) {
                 cerrarModalReceta();
+            }
+            if (event.target == modalEditar) {
+                cerrarModalEditarReceta();
             }
         }
     </script>

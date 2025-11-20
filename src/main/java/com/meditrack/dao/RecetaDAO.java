@@ -103,6 +103,49 @@ public class RecetaDAO {
         return null;
     }
 
+    public boolean updateReceta(Receta receta) {
+        String sql = "UPDATE recetas SET diagnostico = ?, medicamento = ?, dosis = ?, " +
+                     "indicaciones = ?, estado = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, receta.getDiagnostico());
+            stmt.setString(2, receta.getMedicamento());
+            stmt.setString(3, receta.getDosis());
+            stmt.setString(4, receta.getIndicaciones());
+            stmt.setString(5, receta.getEstado());
+            stmt.setLong(6, receta.getId());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public List<Receta> findByPacienteIdAndMedicoId(Long pacienteId, Long medicoId) {
+        List<Receta> recetas = new ArrayList<>();
+        String sql = "SELECT * FROM recetas WHERE paciente_id = ? AND medico_id = ? ORDER BY fecha_emision DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, pacienteId);
+            stmt.setLong(2, medicoId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                recetas.add(mapResultSetToReceta(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return recetas;
+    }
+
     private Receta mapResultSetToReceta(ResultSet rs) throws SQLException {
         Receta receta = new Receta();
         receta.setId(rs.getLong("id"));

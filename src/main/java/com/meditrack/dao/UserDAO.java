@@ -155,6 +155,27 @@ public class UserDAO {
         return findByEmail(email) != null;
     }
 
+    // Listar usuarios por tipo
+    public List<Usuario> findByTipoUsuario(String tipoUsuario) {
+        List<Usuario> usuarios = new ArrayList<>();
+        String sql = "SELECT * FROM usuarios WHERE tipo_usuario = ? AND activo = true ORDER BY nombre, apellido";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, tipoUsuario);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                usuarios.add(mapResultSetToUsuario(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuarios;
+    }
+
     // Mapear ResultSet a objeto Usuario
     private Usuario mapResultSetToUsuario(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();

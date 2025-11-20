@@ -138,6 +138,46 @@ public class CitaDAO {
         return null;
     }
 
+    public List<Cita> findByMedicoId(Long medicoId) {
+        List<Cita> citas = new ArrayList<>();
+        String sql = "SELECT * FROM citas WHERE medico_id = ? ORDER BY fecha_cita DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, medicoId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                citas.add(mapResultSetToCita(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return citas;
+    }
+
+    public List<Cita> findByPacienteId(Long pacienteId) {
+        List<Cita> citas = new ArrayList<>();
+        String sql = "SELECT * FROM citas WHERE paciente_id = ? ORDER BY fecha_cita DESC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setLong(1, pacienteId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                citas.add(mapResultSetToCita(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return citas;
+    }
+
     private Cita mapResultSetToCita(ResultSet rs) throws SQLException {
         Cita cita = new Cita();
         cita.setId(rs.getLong("id"));
